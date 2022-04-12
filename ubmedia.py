@@ -4,7 +4,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import os
 from os import getenv
 
-from pyrogram.types.messages_and_media import message
 
 #---------------------------------+ heroku
 api_id = int(getenv("API_ID"))
