@@ -1,5 +1,5 @@
 # ubmedia.py
-from pyrogram import Client
+from pyrogram import Client, Session
 from pyrogram import filters
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
@@ -9,14 +9,20 @@ idss = []
 
 # Set a custom session storage path
 session_path = os.path.join(os.getcwd(), "ub_session")
+
+# Create a Session instance with a custom name
+session = Session(
+    name="ub_session",
+    storage=Session.FSStorage(session_path)
+)
+
 ub = Client(
     Config.SESSION_STRING,
     api_id=Config.API_ID,
     api_hash=Config.API_HASH,
     sleep_threshold=60,
     app_version="1.0.0",  # Specify your app version
-    workdir=session_path,
-    session_name="ub_session"
+    session=session
 )
 
 def clean_data():
