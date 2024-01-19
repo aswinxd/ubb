@@ -2,15 +2,10 @@
 from pyrogram import Client
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import os
 
 idss = []
 
-# Set a custom session storage path
-session_path = "/home/ubuntu/ubb/ub_session"
 
 # Initialize Pyrogram client
 ub = Client(
@@ -23,78 +18,68 @@ ub = Client(
 )
 
 def clean_data():
-    try:
-        logger.info("Checking media")
-
-        for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="photo_video", limit=20):
-            msg_id = ids.message.id
-            idss.append(msg_id)
-            ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
-            ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=[msg_id])
-
-        if len(idss) == 0:
-            logger.info("No photos to delete")
+    print("Checking media")
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="photo_video", limit=20):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
+        ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No photos to delete")
         else:
             c = len(idss)
-            logger.info(f"Cleared almost {c} messages")
+            print(f"Cleared almost {c} messages")
             idss.clear()
 
-        for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="document", limit=5):
-            msg_id = ids.message.id
-            idss.append(msg_id)
-            ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
-            ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=[msg_id])
-
-        if len(idss) == 0:
-            logger.info("No files to delete")
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="document", limit=5):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
+        ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No files to delete")
         else:
             c = len(idss)
-            logger.info(f"Almost {c} files deleted")
+            print(f"Almost {c} files deleted")
             idss.clear()
-
-    except Exception as e:
-        logger.error(f"An error occurred in clean_data: {e}")
 
 def channel_delete():
-    try:
-        logger.info("Trying to delete channel messages")
-
-        for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter="photo_video"):
-            msg_id = ids.message.id
-            idss.append(msg_id)
-            ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=[msg_id])
-
-        if len(idss) == 0:
-            logger.info("No photos to delete")
+    print("Trying to delete channel messages")
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter="photo_video"):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No photos to delete")
         else:
             c = len(idss)
-            logger.info(f"Almost {c} files deleted")
+            print(f"Almost {c} files deleted")
             idss.clear()
 
-        for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter="document", limit=5):
-            msg_id = ids.message.id
-            idss.append(msg_id)
-            ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=[msg_id])
-
-        if len(idss) == 0:
-            logger.info("No files to delete")
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter="document", limit=5):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No files to delete")
         else:
             c = len(idss)
-            logger.info(f"Almost {c} files deleted")
+            print(f"Almost {c} files deleted")
             idss.clear()
 
-    except Exception as e:
-        logger.error(f"An error occurred in channel_delete: {e}")
+# Initialize the scheduler
+scheduler = BackgroundScheduler()
 
-scheduler_group = BackgroundScheduler()
-scheduler_group.add_job(clean_data, 'interval', seconds=Config.GROUP_DELETE_TIME)
-scheduler_group.start()
+# Add jobs to the scheduler
+scheduler.add_job(clean_data, 'interval', seconds=Config.GROUP_DELETE_TIME)
+scheduler.add_job(channel_delete, 'interval', minutes=Config.CHANNEL_DELETE_TIME)
 
-scheduler_channel = BackgroundScheduler()
-scheduler_channel.add_job(channel_delete, 'interval', minutes=Config.CHANNEL_DELETE_TIME)
-scheduler_channel.start()
+# Start the scheduler
+scheduler.start()
 
-try:
-    ub.run()
-except Exception as e:
-    logger.error(f"An error occurred in ub.run(): {e}")
+# Run the Pyrogram client
+ub.run()
