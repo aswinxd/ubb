@@ -3,6 +3,13 @@ from pyrogram import Client
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
 
+ub = Client(
+    "my_session",
+    api_id=Config.API_ID,
+    api_hash=Config.API_HASH,
+    sleep_threshold=60,
+    workdir="/path/to/shorter/directory"
+)
 class MediaBot(Client):
     def __init__(self, name, config):
         super().__init__(
