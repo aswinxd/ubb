@@ -29,10 +29,10 @@ ub = Client(string, api_id=api_id, api_hash=api_hash, sleep_threshold=60)
 def clean_data():
     print("checking media")
     for ids in ub.search_messages(chat_id=group, filter="photo_video", limit=20):
-        msg_id = ids.message_id
+        msg_id = ids. message.id
         idss.append(msg_id)
-        ub.copy_message(chat_id=channel, from_chat_id=group, message_id=msg_id)
-        ub.delete_messages(chat_id=group, message_ids=msg_id)
+        ub.copy_message(chat_id=channel, from_chat_id=group, message.ids=msg_id)
+        ub.delete_messages(chat_id=group, message.ids=msg_id)
     else:
         if len(idss) == 0:
             print("no photos to delete")
@@ -43,10 +43,10 @@ def clean_data():
             idss.clear() 
 
     for ids in ub.search_messages(chat_id=group, filter="document", limit=5):
-        msg_id = ids.message_id
+        msg_id = ids.message.id
         idss.append(msg_id)
-        ub.copy_message(chat_id=channel, from_chat_id=group, message_id=msg_id)
-        ub.delete_messages(chat_id=group, message_ids=msg_id)
+        ub.copy_message(chat_id=channel, from_chat_id=group, message.id=msg_id)
+        ub.delete_messages(chat_id=group, message.ids=msg_id)
     else:
         if len(idss) == 0:
             print("no photos to delete")
@@ -59,9 +59,9 @@ def clean_data():
 def channel_delete():
     print("trying to delete channel messages")
     for ids in ub.search_messages(chat_id=channel, filter="photo_video"):
-        msg_id = ids.message_id
+        msg_id = ids.message_.id
         idss.append(msg_id)
-        ub.delete_messages(chat_id=channel, message_ids=msg_id)
+        ub.delete_messages(chat_id=channel, message.ids=msg_id)
     else:
         if len(idss) == 0:
             print("no photos to delete")
@@ -72,9 +72,9 @@ def channel_delete():
             idss.clear() 
 
     for ids in ub.search_messages(chat_id=channel, filter="document", limit=5):
-        msg_id = ids.message_id
+        msg_id = ids.message.id
         idss.append(msg_id)
-        ub.delete_messages(chat_id=channel, message_ids=msg_id)
+        ub.delete_messages(chat_id=channel, message.ids=msg_id)
     else:
         if len(idss) == 0:
             print("no files to delete")
