@@ -6,15 +6,12 @@ import os
 
 idss = []
 
-
 # Initialize Pyrogram client
 ub = Client(
     Config.SESSION_STRING,
     api_id=Config.API_ID,
     api_hash=Config.API_HASH,
     sleep_threshold=60,
-    app_version="1.0.0",  # Specify your app version
-    workdir=session_path
 )
 
 def clean_data():
