@@ -2,14 +2,18 @@
 from pyrogram import Client
 from pyrogram import filters
 from apscheduler.schedulers.background import BackgroundScheduler
-from config import Config  # Import the Config class from config.py
+from config import Config
 import os
 
 idss = []
 
-# Set a custom session storage path
-session_path = os.path.join(os.getcwd(), "ub_session")
-ub = Client(Config.SESSION_STRING, api_id=Config.API_ID, api_hash=Config.API_HASH, sleep_threshold=60, workdir=session_path)
+ub = Client(
+    Config.SESSION_STRING,
+    api_id=Config.API_ID,
+    api_hash=Config.API_HASH,
+    sleep_threshold=60,
+    app_version="1.0.0",  # Specify your app version
+)
 
 def clean_data():
     print("checking media")
