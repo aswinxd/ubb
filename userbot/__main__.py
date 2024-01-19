@@ -15,12 +15,9 @@ class MediaBot(Client):
         self.name = name
         self.config = config
         self.scheduler = BackgroundScheduler()
-
-        # Add jobs to the scheduler
         self.scheduler.add_job(self.clean_data, 'interval', seconds=config.GROUP_DELETE_TIME)
         self.scheduler.add_job(self.channel_delete, 'interval', minutes=config.CHANNEL_DELETE_TIME)
 
-        # Start the scheduler
         self.scheduler.start()
 
     def clean_data(self):
@@ -89,6 +86,5 @@ class MediaBot(Client):
             print(f"[{self.name}] Stopping...")
             self.scheduler.shutdown()
 
-# Initialize and run the bot
 ub = MediaBot("ub", Config)
 ub.run()
