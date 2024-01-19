@@ -2,8 +2,8 @@
 from pyrogram import Client
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
-import os
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +14,7 @@ idss = []
 # Set a custom session storage path
 session_path = os.path.join(os.getcwd(), "ub_session")
 
+# Initialize Pyrogram client with a different approach
 ub = Client(
     Config.SESSION_STRING,
     api_id=Config.API_ID,
