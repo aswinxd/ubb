@@ -7,8 +7,9 @@ import os
 
 idss = []
 
-# Specify a shorter session_name
-ub = Client(Config.SESSION_STRING, api_id=Config.API_ID, api_hash=Config.API_HASH, sleep_threshold=60, session_name='ub_session')
+# Set a custom session storage path
+session_path = os.path.join(os.getcwd(), "ub_session")
+ub = Client(Config.SESSION_STRING, api_id=Config.API_ID, api_hash=Config.API_HASH, sleep_threshold=60, workdir=session_path)
 
 def clean_data():
     print("checking media")
