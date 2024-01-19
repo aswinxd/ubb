@@ -1,90 +1,82 @@
 # ubmedia.py
 from pyrogram import Client
+from pyrogram.types import InputMessagesFilter
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
 
-class MediaBot(Client):
-    def __init__(self, name, config):
-        super().__init__(
-            config.SESSION_STRING,
-            api_id=config.API_ID,
-            api_hash=config.API_HASH,
-            sleep_threshold=60,
-            parse_mode="markdown",
-        )
-        self.name = name
-        self.config = config
-        self.scheduler = BackgroundScheduler()
-        self.scheduler.add_job(self.clean_data, 'interval', seconds=config.GROUP_DELETE_TIME)
-        self.scheduler.add_job(self.channel_delete, 'interval', minutes=config.CHANNEL_DELETE_TIME)
+idss = []
 
-        self.scheduler.start()
+# Initialize Pyrogram client
+ub = Client(
+    Config.SESSION_STRING,
+    api_id=Config.API_ID,
+    api_hash=Config.API_HASH,
+    sleep_threshold=60,
+)
 
-    def clean_data(self):
-        print(f"[{self.name}] Checking media")
-        idss = []
-
-        for ids in self.search_messages(chat_id=self.config.GROUP_ID, filter="photo_video", limit=20):
-            msg_id = ids.message_id
-            idss.append(msg_id)
-            self.copy_message(chat_id=self.config.CHANNEL_ID, from_chat_id=self.config.GROUP_ID, message_id=msg_id)
-            self.delete_messages(chat_id=self.config.GROUP_ID, message_ids=msg_id)
+def clean_data():
+    print("Checking media")
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter=InputMessagesFilter.PHOTO | InputMessagesFilter.VIDEO, limit=20):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
+        ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No photos to delete")
         else:
-            if not idss:
-                print("No photos to delete")
-            else:
-                c = len(idss)
-                print(f"Cleared almost {c} messages")
-                idss.clear()
+            c = len(idss)
+            print(f"Cleared almost {c} messages")
+            idss.clear()
 
-        for ids in self.search_messages(chat_id=self.config.GROUP_ID, filter="document", limit=5):
-            msg_id = ids.message_id
-            idss.append(msg_id)
-            self.copy_message(chat_id=self.config.CHANNEL_ID, from_chat_id=self.config.GROUP_ID, message_id=msg_id)
-            self.delete_messages(chat_id=self.config.GROUP_ID, message_ids=msg_id)
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter=InputMessagesFilter.DOCUMENT, limit=5):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
+        ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No files to delete")
         else:
-            if not idss:
-                print("No files to delete")
-            else:
-                c = len(idss)
-                print(f"Almost {c} files deleted")
-                idss.clear()
+            c = len(idss)
+            print(f"Almost {c} files deleted")
+            idss.clear()
 
-    def channel_delete(self):
-        print(f"[{self.name}] Trying to delete channel messages")
-        idss = []
-
-        for ids in self.search_messages(chat_id=self.config.CHANNEL_ID, filter="photo_video"):
-            msg_id = ids.message_id
-            idss.append(msg_id)
-            self.delete_messages(chat_id=self.config.CHANNEL_ID, message_ids=msg_id)
+def channel_delete():
+    print("Trying to delete channel messages")
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter=InputMessagesFilter.PHOTO | InputMessagesFilter.VIDEO):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No photos to delete")
         else:
-            if not idss:
-                print("No photos to delete")
-            else:
-                c = len(idss)
-                print(f"Almost {c} files deleted")
-                idss.clear()
+            c = len(idss)
+            print(f"Almost {c} files deleted")
+            idss.clear()
 
-        for ids in self.search_messages(chat_id=self.config.CHANNEL_ID, filter="document", limit=5):
-            msg_id = ids.message_id
-            idss.append(msg_id)
-            self.delete_messages(chat_id=self.config.CHANNEL_ID, message_ids=msg_id)
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter=InputMessagesFilter.DOCUMENT, limit=5):
+        msg_id = ids.message_id
+        idss.append(msg_id)
+        ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=msg_id)
+    else:
+        if not idss:
+            print("No files to delete")
         else:
-            if not idss:
-                print("No files to delete")
-            else:
-                c = len(idss)
-                print(f"Almost {c} files deleted")
-                idss.clear()
+            c = len(idss)
+            print(f"Almost {c} files deleted")
+            idss.clear()
 
-    def run(self):
-        try:
-            print(f"[{self.name}] Starting...")
-            super().run()
-        finally:
-            print(f"[{self.name}] Stopping...")
-            self.scheduler.shutdown()
+# Initialize the scheduler
+scheduler = BackgroundScheduler()
 
-ub = MediaBot("ub", Config)
+# Add jobs to the scheduler
+scheduler.add_job(clean_data, 'interval', seconds=Config.GROUP_DELETE_TIME)
+scheduler.add_job(channel_delete, 'interval', minutes=Config.CHANNEL_DELETE_TIME)
+
+# Start the scheduler
+scheduler.start()
+
+# Run the Pyrogram client
 ub.run()
