@@ -14,6 +14,9 @@ idss = []
 # Set a custom session storage path
 session_path = os.path.join(os.getcwd(), "ub_session")
 
+# Ensure the session_path directory exists
+os.makedirs(session_path, exist_ok=True)
+
 # Initialize Pyrogram client with a different approach
 ub = Client(
     Config.SESSION_STRING,
