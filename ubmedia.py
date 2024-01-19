@@ -1,4 +1,4 @@
-# main_script.py
+# ubmedia.py
 from pyrogram import Client
 from pyrogram import filters
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -7,7 +7,8 @@ import os
 
 idss = []
 
-ub = Client(Config.SESSION_STRING, api_id=Config.API_ID, api_hash=Config.API_HASH, sleep_threshold=60)
+# Specify a shorter session_name
+ub = Client(Config.SESSION_STRING, api_id=Config.API_ID, api_hash=Config.API_HASH, sleep_threshold=60, session_name='ub_session')
 
 def clean_data():
     print("checking media")
