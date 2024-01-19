@@ -1,6 +1,6 @@
 # ubmedia.py
 from pyrogram import Client
-from pyrogram.types import InputMessagesFilter
+from pyrogram.raw import types
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
 
@@ -16,7 +16,7 @@ ub = Client(
 
 def clean_data():
     print("Checking media")
-    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter=InputMessagesFilter.PHOTO | InputMessagesFilter.VIDEO, limit=20):
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter=types.InputMessagesFilterPhoto | types.InputMessagesFilterVideo, limit=20):
         msg_id = ids.message_id
         idss.append(msg_id)
         ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
@@ -29,7 +29,7 @@ def clean_data():
             print(f"Cleared almost {c} messages")
             idss.clear()
 
-    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter=InputMessagesFilter.DOCUMENT, limit=5):
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter=types.InputMessagesFilterDocument, limit=5):
         msg_id = ids.message_id
         idss.append(msg_id)
         ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
@@ -44,7 +44,7 @@ def clean_data():
 
 def channel_delete():
     print("Trying to delete channel messages")
-    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter=InputMessagesFilter.PHOTO | InputMessagesFilter.VIDEO):
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter=types.InputMessagesFilterPhoto | types.InputMessagesFilterVideo):
         msg_id = ids.message_id
         idss.append(msg_id)
         ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=msg_id)
@@ -56,7 +56,7 @@ def channel_delete():
             print(f"Almost {c} files deleted")
             idss.clear()
 
-    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter=InputMessagesFilter.DOCUMENT, limit=5):
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter=types.InputMessagesFilterDocument, limit=5):
         msg_id = ids.message_id
         idss.append(msg_id)
         ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=msg_id)
