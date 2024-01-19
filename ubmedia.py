@@ -15,7 +15,8 @@ ub = Client(
     api_hash=Config.API_HASH,
     sleep_threshold=60,
     app_version="1.0.0",  # Specify your app version
-    workdir=session_path
+    workdir=session_path,
+    session_name="ub_session"
 )
 
 def clean_data():
