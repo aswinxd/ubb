@@ -1,35 +1,22 @@
+# main_script.py
 from pyrogram import Client
 from pyrogram import filters
 from apscheduler.schedulers.background import BackgroundScheduler
+from config import Config  # Import the Config class from config.py
 import os
-from os import getenv
-
-# Heroku Config Variables
-api_id_heroku = int(getenv("API_ID"))
-api_hash_heroku = getenv("API_HASH")
-string_heroku = getenv("SESSION_STRING")
-g_time = int(getenv("GROUP_DELETE_TIME"))
-c_time = int(getenv("CHANNEL_DELETE_TIME"))
-group = int(getenv("GROUP_ID"))
-channel = int(getenv("CHANNEL_ID"))
-
-# Pyrogram Config Variables
-api_id_pyrogram = api_id_heroku
-api_hash_pyrogram = api_hash_heroku
-string_pyrogram = string_heroku
 
 idss = []
 
-ub = Client(string_pyrogram, api_id=api_id_pyrogram, api_hash=api_hash_pyrogram, sleep_threshold=60)
+ub = Client(Config.SESSION_STRING, api_id=Config.API_ID, api_hash=Config.API_HASH, sleep_threshold=60)
 
 def clean_data():
     print("checking media")
-    for ids in ub.search_messages(chat_id=group, filter="photo_video", limit=20):
-        msg_id = ids.message.id  # consistent naming
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="photo_video", limit=20):
+        msg_id = ids.message.id
         idss.append(msg_id)
-        ub.copy_message(chat_id=channel, from_chat_id=group, message_id=msg_id)
-        ub.delete_messages(chat_id=group, message_ids=[msg_id])  # Corrected typo here
-    
+        ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
+        ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=[msg_id])
+
     if len(idss) == 0:
         print("no photos to delete")
     else:
@@ -37,12 +24,12 @@ def clean_data():
         print(f"cleared almost {c} messages")
         idss.clear()
 
-    for ids in ub.search_messages(chat_id=group, filter="document", limit=5):
-        msg_id = ids.message.id  # consistent naming
+    for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="document", limit=5):
+        msg_id = ids.message.id
         idss.append(msg_id)
-        ub.copy_message(chat_id=channel, from_chat_id=group, message_id=msg_id)
-        ub.delete_messages(chat_id=group, message_ids=[msg_id])  # Corrected typo here
-    
+        ub.copy_message(chat_id=Config.CHANNEL_ID, from_chat_id=Config.GROUP_ID, message_id=msg_id)
+        ub.delete_messages(chat_id=Config.GROUP_ID, message_ids=[msg_id])
+
     if len(idss) == 0:
         print("no files to delete")
     else:
@@ -52,10 +39,10 @@ def clean_data():
 
 def channel_delete():
     print("trying to delete channel messages")
-    for ids in ub.search_messages(chat_id=channel, filter="photo_video"):
-        msg_id = ids.message.id  # consistent naming
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter="photo_video"):
+        msg_id = ids.message.id
         idss.append(msg_id)
-        ub.delete_messages(chat_id=channel, message_ids=[msg_id])  # Corrected typo here
+        ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=[msg_id])
 
     if len(idss) == 0:
         print("no photos to delete")
@@ -64,11 +51,11 @@ def channel_delete():
         print(f"almost {c} files deleted")
         idss.clear()
 
-    for ids in ub.search_messages(chat_id=channel, filter="document", limit=5):
-        msg_id = ids.message.id  # consistent naming
+    for ids in ub.search_messages(chat_id=Config.CHANNEL_ID, filter="document", limit=5):
+        msg_id = ids.message.id
         idss.append(msg_id)
-        ub.delete_messages(chat_id=channel, message_ids=[msg_id])  # Corrected typo here
-    
+        ub.delete_messages(chat_id=Config.CHANNEL_ID, message_ids=[msg_id])
+
     if len(idss) == 0:
         print("no files to delete")
     else:
@@ -76,13 +63,12 @@ def channel_delete():
         print(f"almost {c} files deleted")
         idss.clear()
 
-# Use different variable names for the two schedulers
 scheduler_group = BackgroundScheduler()
-scheduler_group.add_job(clean_data, 'interval', seconds=g_time)
+scheduler_group.add_job(clean_data, 'interval', seconds=Config.GROUP_DELETE_TIME)
 scheduler_group.start()
 
 scheduler_channel = BackgroundScheduler()
-scheduler_channel.add_job(channel_delete, 'interval', minutes=c_time)
+scheduler_channel.add_job(channel_delete, 'interval', minutes=Config.CHANNEL_DELETE_TIME)
 scheduler_channel.start()
 
 ub.run()
