@@ -3,19 +3,14 @@ from pyrogram import Client
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
 import logging
-import os
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 idss = []
 
 # Set a custom session storage path
-session_path = os.path.join(os.getcwd(), "ub_session")
-
-# Ensure the session_path directory exists
-os.makedirs(session_path, exist_ok=True)
+session_path = "/home/ubuntu/ubb/ub_session"
 
 # Initialize Pyrogram client
 ub = Client(
@@ -30,7 +25,7 @@ ub = Client(
 def clean_data():
     try:
         logger.info("Checking media")
-        
+
         for ids in ub.search_messages(chat_id=Config.GROUP_ID, filter="photo_video", limit=20):
             msg_id = ids.message.id
             idss.append(msg_id)
